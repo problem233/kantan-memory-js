@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -5,9 +6,8 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Kantan Memory JS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="./index.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.6.0/papaparse.min.js"></script>
   <script src="./index.js"></script>
 </head>
 <body>
@@ -25,7 +25,9 @@
         <label for="word-list">Word list:</label>
         <select name="word-list" onchange="app.changeWordList()">
           <option selected="selected" disabled="disabled" hidden="hidden"></option>
-          <option>choose a file…</option>
+          <option onclick="app.getWordList(true, './wordlists/Japanese-wordlist-1.csv')">Japanese wordlist 1</option>
+          <option onclick="app.getWordList(true, './wordlists/Japanese-wordlist-2.csv')">Japanese wordlist 2</option>
+          <option onclick="app.importWordList()">choose a file…</option>
         </select>
       </div>
       <div id="word-number">
@@ -50,6 +52,9 @@
       <button onclick="app.no()">I don't know</button>
       <button disabled="disabled" id="continue" onclick="app.continue()">continue</button>
     </div>
+  </div>
+  <div class="hidden">
+    <input id="get-file" type="file" accept=".csv" onchange="app.importWordListFile()">
   </div>
 </body>
 </html>
