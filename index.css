@@ -77,8 +77,9 @@ button:disabled {
 
 #word {
   margin-top: 1vh;
-  margin-bottom: 6vh;
+  margin-bottom: 8vh;
   font-size: 8vh;
+  height: 8vh;
 }
 
 #buttons > button {
