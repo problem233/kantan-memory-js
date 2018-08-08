@@ -1,0 +1,89 @@
+body {
+  display: flex;
+  color: hsl(192, 85%, 10%);
+  font-family: 'Segoe UI', 'Microsoft Yahei UI', sans-serif;
+  font-size: 3.2vh;
+}
+
+button {
+  display: block;
+  background-color: hsl(192, 85%, 55%);
+  border: 2px solid hsl(192, 85%, 40%);
+  color: inherit;
+}
+
+button:hover {
+  background-color: hsl(192, 85%, 45%);
+}
+
+button:active {
+  background-color: hsl(192, 85%, 42%);
+}
+
+button:disabled {
+  background-color: hsl(192, 37.5%, 55%);
+}
+
+.hidden {
+  display: none !important;
+}
+
+#app {
+  width: 61.8vh;
+  height: calc(100vh - 4px);
+  margin: auto;
+  position: relative;
+  background-color: hsl(192, 85%, 80%);
+  border: 2px solid hsl(192, 85%, 40%);
+  border-radius: calc(61.8vh * 0.03);
+}
+
+#settings {
+  padding: 0 5vh;
+}
+
+#settings input[type=number] {
+  width: 9.5vh;
+}
+
+#settings > div, #start {
+  margin: 3vh 0;
+}
+
+#start {
+  width: calc(61.8vh - 5vh * 2);
+  height: 8vh;
+  display: block;
+  border-radius: 4vh;
+}
+
+#flex {
+  height: calc(100vh - 100vh / 7 * 3 + 61.8vh * 0.03 * 2 - 2px);
+  display: flex;
+}
+
+#card {
+  margin: auto;
+}
+
+#card > * {
+  text-align: center;
+}
+
+#kana, #meaning {
+  font-size: 4vh;
+  height: 4vh;
+}
+
+#word {
+  margin-top: 1vh;
+  margin-bottom: 6vh;
+  font-size: 8vh;
+}
+
+#buttons > button {
+  width: calc(61.8vh - 61.8vh * 0.025 * 2);
+  height: calc(100vh / 7 - 61.8vh * 0.03 * 2);
+  margin: 3% 2.5%;
+  border-radius: calc((100vh / 7 - 61.8vh * 0.03 * 2) / 2);
+}

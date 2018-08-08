@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Kantan Memory JS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="./index.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.0/js.cookie.min.js"></script>
+  <script src="./index.js"></script>
+</head>
+<body>
+  <div id="app">
+    <form id="settings">
+      <h1>Settings</h1>
+      <div id="mode">
+        <label for="mode">Mode:</label>
+        <select name="mode" onchange="app.changeMode()">
+          <option>new words</option>
+          <option>review</option>
+        </select>
+      </div>
+      <div id="word-list">
+        <label for="word-list">Word list:</label>
+        <select name="word-list" onchange="app.changeWordList()">
+          <option selected="selected" disabled="disabled" hidden="hidden"></option>
+          <option>choose a file…</option>
+        </select>
+      </div>
+      <div id="word-number">
+        <label for="word-number">Number of words to learn:</label>
+        <input type="number" name="word-number" value="10" min="1" max="100">
+      </div>
+      <div id="review-number" class="hidden">
+        <label for="review-number">Number of words to review:</label>
+        <input type="number" name="review-number" value="50" min="1" max="500">    
+      </div>
+      <button id="start" disabled="disabled" onclick="app.start(); return false">Start</button>
+    </form>
+    <div id="flex" class="hidden">
+      <div id="card">
+        <div id="kana">わたし</div>
+        <div id="word">私</div>
+        <div id="meaning">我</div>
+      </div>
+    </div>
+    <div id="buttons" class="hidden">
+      <button onclick="app.yes()">I know this word</button>
+      <button onclick="app.no()">I don't know</button>
+      <button disabled="disabled" id="continue" onclick="app.continue()">continue</button>
+    </div>
+  </div>
+</body>
+</html>
