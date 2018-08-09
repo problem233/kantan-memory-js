@@ -23,7 +23,7 @@
       </div>
       <div id="word-list">
         <label for="word-list">Word list:</label>
-        <select name="word-list" onchange="app.changeWordList()">
+        <select name="word-list">
           <option selected="selected" disabled="disabled" hidden="hidden"></option>
           <option onclick="app.getWordList(true, './wordlists/Japanese-wordlist-1.csv')">Japanese wordlist 1</option>
           <option onclick="app.getWordList(true, './wordlists/Japanese-wordlist-2.csv')">Japanese wordlist 2</option>
@@ -34,7 +34,7 @@
         <label for="word-number">Number of words to learn:</label>
         <input type="number" name="word-number" value="10" min="1" max="100">
       </div>
-      <div id="review-number" class="hidden">
+      <div id="review-number">
         <label for="review-number">Number of words to review:</label>
         <input type="number" name="review-number" value="50" min="1" max="500">    
       </div>
@@ -48,8 +48,8 @@
       </div>
     </div>
     <div id="buttons" class="hidden">
-      <button onclick="app.yes()">I know this word</button>
-      <button onclick="app.no()">I don't know</button>
+      <button id="yes" onclick="app.yes()">I know this word</button>
+      <button id="no" onclick="app.no()">I don't know</button>
       <button disabled="disabled" id="continue" onclick="app.continue()">continue</button>
     </div>
   </div>

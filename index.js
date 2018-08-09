@@ -13,10 +13,10 @@ const app = (() => {
   let wordList
 
   function changeMode () {
-    toggleHidden('word-list', 'word-number', 'review-number')
+    toggleHidden('word-list', 'word-number')
     match($('mode').children[1].value, {
       'new words': () => {
-        if ($('word-list').children[1].value === '')
+        if (($('word-list').children[1].value === '') || (!wordList))
           $('start').disabled = true
         else $('start').disabled = false
       },
@@ -24,10 +24,6 @@ const app = (() => {
         $('start').disabled = false
       }
     })
-  }
-
-  function changeWordList () {
-    $('start').disabled = false
   }
 
   function getWordList (download, file) {
@@ -41,13 +37,14 @@ const app = (() => {
         } else {
           wordList = {
             name: file.name ? file.name : file,
-            data: res.data.map(elem => ({
-              word: elem[0],
+            list: res.data.map(elem => ({
+              text: elem[0],
               kana: elem[1],
               meaning: elem[2],
               accent: Number.parseInt(elem[3])
             }))
           }
+          $('start').disabled = false
         }
       }
     })
@@ -67,15 +64,13 @@ const app = (() => {
     }
   }
 
-  const impossibleAct = () => alert("impossible action")
-  const toggleButtons = () =>
-    $('buttons').children.forEach(elem => elem.disabled = !elem.disabled)
+  const impossible = () => alert("impossible action")
   const makeAccent = word => ((word.accent.toString == 'NaN') 
     ? "" : "（" + word.accent + "）")
 
-  let yes = impossibleAct,
-      no = impossibleAct,
-      next = impossibleAct
+  let yes = impossible,
+      no = impossible,
+      next = impossible
 
   function start () {
     let process = Number.parseInt(
@@ -86,83 +81,138 @@ const app = (() => {
       process++
       localStorage['process_' + wordList.name] = process.toString()
     }
-    const userData = JSON.parse(
+
+    if (process >= wordList.list.length) {
+      alert("Here's no more word to learn in the word list!")
+      return
+    }
+
+    let userData = JSON.parse(
       localStorage.userData ? localStorage.userData : "{}")
-    function askKana (wordList) {
-      function showKana (word) {
-        $('kana').innerText = word.kana
-        $('word').innerText = ""
-        $('meaning').innerText = ""
+    Object.keys(userData).forEach(k =>
+      userData[k].lastSeen = new Date(userData[k].lastSeen))
+    const downgrade = word => {
+      userData[word.text] = {
+        word: word,
+        familarity: userData[word.text] 
+          ? (userData[word.text].familarity > 0 
+            ? userData[word.text].familarity - 1
+            : 0)
+          : 0,
+        lastSeen: new Date()
       }
-      if (!wordList.reviewList.length) {
-        showKana(wordList.reviewList[0].word)
-      } else {
-        showKana(wordList.newWordList[0])
-      }
-      toggleButtons()
-      yes = () => showAnswer(wordList)
-      no = () => askWord(wordList)
-      next = impossibleAct
+      localStorage.userData = JSON.stringify(userData)
     }
-    function askWord (wordList) {
-      function showWord (word) {
+    const upgrade = word => {
+      userData[word.text] = {
+        word: word,
+        familarity: userData[word.text] 
+          ? userData[word.text].familarity + 1 
+          : 0,
+        lastSeen: new Date()
+      }
+      localStorage.userData = JSON.stringify(userData)
+    }
+
+    let queue
+
+    function nextWord () {
+      if (!queue.length) {
         $('kana').innerText = ""
-        $('word').innerText = word.word + makeAccent(word)
+        $('word').innerText = "All words are finished!"
         $('meaning').innerText = ""
+        $('yes').disabled = true
+        $('no').disabled = true
+        $('continue').disabled = true
+        yes = no = next = impossible
+        return
       }
-      if (!wordList.reviewList.length) {
-        showWord(wordList.reviewList[0].word)
-      } else {
-        showWord(wordList.newWordList[0])
-      }
-      yes = no = () => showAnswer(wordList)
-      next = impossibleAct
+      const { word, stage } = queue.pop()
+      if (userData[word.text]) incProcess()
+      match(stage, {
+        1: () => askWord(word, stage, false),
+        2: () => askKana(word, stage),
+        3: impossible
+      })
     }
-    function showAnswer (wordList) {
-      function showAnswer_ (word) {
-        $('kana').innerText = word.kana + makeAccent(word)
-        $('word').innerText = word.word
-        $('meaning').innerText = word.meaning
+    function askKana (word, stage) {
+      const isNew = userData[word.text]
+      $('kana').innerText = word.kana
+      $('word').innerText = ""
+      $('meaning').innerText = ""
+      $('yes').disabled = false
+      $('no').disabled = false
+      $('continue').disabled = true
+      yes = () => { // FIXME logic
+        upgrade(word)
+        showAnswer(word, match(stage, {
+          1: impossible, 2: () => 3, 3: impossible
+        }))
       }
-      if (!wordList.reviewList.length) {
-        showAnswer_(wordList.reviewList[0].word)
-        if (wordList.reviewList[0].familarity < 2)
-          wordList.reviewList[0].familarity++ // TODO familarity up&downgrade
-      } else {
-        showAnswer_(wordList.newWordList[0])
+      no = () => {
+        downgrade(word)
+        askWord(word, match(stage, {
+          1: impossible, 2: () => 1, 3: impossible
+        }), isNew)
       }
-      toggleButtons()
-      yes = no = impossibleAct
-      if (!wordList.reviewList.length)
-        next = () => askKana({
-          reviewList: wordList.reviewList.slice(1),
-          newWordList: wordList.newWordList
+      next = impossible
+    }
+    function askWord (word, stage, isNew) {
+      $('kana').innerText = ""
+      $('word').innerText = word.text + makeAccent(word)
+      $('meaning').innerText = ""
+      $('yes').disabled = false
+      $('no').disabled = false
+      $('continue').disabled = true
+      yes = () => showAnswer(word, match(stage, {
+        1: () => isNew ? 1 : 2, 2: impossible, 3: impossible
+      }))
+      no = () => showAnswer(word, match(stage, {
+        1: () => 1, 2: impossible, 3: impossible
+      }))
+      next = impossible
+    }
+    function showAnswer (word, stage) {
+      $('kana').innerText = word.kana + makeAccent(word)
+      $('word').innerText = word.text
+      $('meaning').innerText = word.meaning
+      $('yes').disabled = true
+      $('no').disabled = true
+      $('continue').disabled = false
+      yes = no = impossible
+      next = () => {
+        match(stage, {
+          1: () => queue = [{ word, stage }].concat(queue),
+          2: () => queue = [{ word, stage }].concat(queue),
+          3: () => {}
         })
-      else if (!wordList.newWordList.length)
-        next = () => askKana({
-          reviewList: [],
-          newWordList: wordList.newWordList.slice(1)
-        })
-      else next = () => {
-        $('kana').innerText = ""
-        $("word").innerText = "All words are finished!"
-        $("meaning").innerText = ""
-        $('buttons').children[2].disabled = true
+        nextWord()
       }
     }
+
+    queue = Object.values(userData)
+      .sort((a, b) => a.familarity === b.familarity 
+        ? b.familarity - a.familarity 
+        : a.lastSeen - b.lastSeen)
+      .slice(0, $('review-number').children[1].valueAsNumber)
+      .map(data => data.word)
     match($('mode').children[1].value, {
       'new words': () => {
-        // TODO: build word list
-      },
-      'review': () => {
-
-      }
+        queue = wordList.list.slice(
+            process,
+            process + $('word-number').children[1].valueAsNumber)
+          .reverse()
+          .concat(queue)
+      }, 
+      'review': () => {}
     })
+    queue = queue.map(word => ({ word: word, stage: 2 }))
+    nextWord()
+
     toggleHidden('settings', 'flex', 'buttons')
   }
 
   return {
-    changeMode,
-    changeWordList, getWordList, importWordList, importWordListFile,
+    changeMode, getWordList, importWordList, importWordListFile,
     start, yes: () => yes(), no: () => no(), continue: () => next() }
 })()
